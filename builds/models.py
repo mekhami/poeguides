@@ -1,10 +1,8 @@
-from django import models
+from django.db import models
 from django.conf import settings
 from django.shortcuts import reverse
-from django.taggit import TaggitManager
-from django.template.filters import slugify
-
-from . import constants
+from taggit.managers import TaggableManager
+from django.utils.text import slugify
 
 
 class Build(models.Model):
@@ -14,13 +12,13 @@ class Build(models.Model):
     date_updated = models.DateField(auto_now=True)
     description = models.TextField(null=True, blank=True)
     featured = models.BooleanField(default=False)
-    patch = models.DecimalField(places=1)
+    patch = models.DecimalField(decimal_places=1, max_digits=5)
     poeplanner_url = models.URLField(null=True, blank=True)
-    primary_skill = models.CharField(choices=constants.SKILL_CHOICES)
+    primary_skill = models.CharField(max_length=100, null=True, blank=True)
     published = models.BooleanField(default=False)
     slug = models.CharField(max_length=255, null=True, blank=True)
     splash_image = models.ImageField(null=True, blank=True)
-    tags = TaggitManager(null=True, blank=True)
+    tags = TaggableManager()
     title = models.CharField(max_length=255)
 
     def __str__(self):
