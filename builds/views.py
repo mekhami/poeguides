@@ -1,3 +1,4 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views import generic
 
@@ -6,12 +7,12 @@ from .models import Build
 
 
 class IndexView(generic.ListView):
-    template = 'builds/index.html'
+    template_name = 'pages/home.html'
     model = Build
     context_object_name = 'nonfeatured'
 
     def get_queryset(self):
-        return Build.objects.filter(published=True, featured=False).order('-date_updated')
+        return Build.objects.filter(published=True, featured=False).order_by('-date_updated')
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -25,8 +26,17 @@ class BuildDetail(generic.DetailView):
 
 
 class BuildCreate(generic.FormView):
+    template_name = 'builds/create.html'
     model = Build
     form_class = BuildCreateForm
+
+    def form_valid(self, form):
+        form.author = self.request.user
+        self.object = form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
 
 
 class BuildUpdate(generic.UpdateView):

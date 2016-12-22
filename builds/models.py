@@ -6,7 +6,7 @@ from django.utils.text import slugify
 
 
 class Build(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True)
     blurb = models.ForeignKey('BuildBlurb', null=True, blank=True)
     date_created = models.DateField(auto_now_add=True)
     date_updated = models.DateField(auto_now=True)
@@ -22,13 +22,11 @@ class Build(models.Model):
     title = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.author + ' ' + self.title
+        return self.title
 
     def save(self):
+        self.slug = slugify(self.title)
         super().save()
-        if not self.pk:
-            self.slug = slugify(self.title)
-            super().save()
 
     def get_absolute_url(self):
         return reverse('builds:detail', kwargs={'slug': self.slug})
